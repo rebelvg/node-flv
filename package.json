@@ -4,6 +4,17 @@
   "license": "MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rebelvg/node-flv.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rebelvg/node-flv/issues"
+  },
+  "homepage": "https://github.com/rebelvg/node-flv#readme",
+  "keywords": [
+    "flv"
+  ],
   "scripts": {
     "lint": "prettier --list-different \"**/*.{ts,js,json,css,md}\"",
     "lint:fix": "prettier --write \"**/*.{ts,js,json,css,md}\"",
