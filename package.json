@@ -1,7 +1,9 @@
 {
   "name": "node-flv",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "lint": "prettier --list-different \"**/*.{ts,js,json,css,md}\"",
     "lint:fix": "prettier --write \"**/*.{ts,js,json,css,md}\"",
