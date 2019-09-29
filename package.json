@@ -12,14 +12,14 @@
   "dependencies": {
     "bitwise": "^0.2.0",
     "lodash": "^4.17.15",
-    "stream-parser": "^0.3.1",
-    "typescript": "^3.6.3"
+    "stream-parser": "^0.3.1"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.138",
     "@types/node": "^12.7.5",
     "prettier": "^1.18.2",
     "ts-node": "^8.4.1",
-    "tsc": "^1.20150623.0"
+    "tsc": "^1.20150623.0",
+    "typescript": "^3.6.3"
   }
 }
