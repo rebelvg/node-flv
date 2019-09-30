@@ -98,7 +98,7 @@ export class FlvPacketHeader {
 }
 
 export class FlvPacket {
-  public flvPacketHeader: FlvPacketHeader;
+  public readonly flvPacketHeader: FlvPacketHeader;
   public readonly payload: Buffer;
 
   constructor(flvPacketHeader: FlvPacketHeader, packetBody: Buffer) {
