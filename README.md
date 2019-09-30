@@ -26,6 +26,8 @@ flvStream.on('flv-packet', (flvPacket: FlvPacket) => {
   flvPacket.buildPacket();
 });
 
+// separate events for each packet type for your convenience
+
 flvStream.on('flv-packet-audio', (flvPacket: FlvPacketAudio) => {});
 
 flvStream.on('flv-packet-video', (flvPacket: FlvPacketVideo) => {});
