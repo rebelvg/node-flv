@@ -1,69 +1,4 @@
-import { IMetaData, IAudioMetaData, IVideoMetaData, parseMetaData, parseAudio, parseVideo } from './flv-meta';
-
-export class FlvHeader {
-  public signature: string;
-  public version: number;
-  public flags: number;
-  public headerSize: number;
-
-  constructor(header: Buffer) {
-    const signature = header.toString('utf8', 0, 3);
-    const version = header.readUInt8(3);
-    const flags = header.readUInt8(4);
-    const headerSize = header.readUInt32BE(5);
-
-    if (signature !== 'FLV') throw new Error('Not FLV.');
-
-    this.signature = signature;
-    this.version = version;
-    this.flags = flags;
-    this.headerSize = headerSize;
-  }
-
-  public buildHeader(): Buffer {
-    const header = Buffer.alloc(this.headerSize);
-
-    header.write(this.signature);
-    header.writeUInt8(this.version, 3);
-    header.writeUInt8(this.flags, 4);
-    header.writeUInt32BE(this.headerSize, 5);
-
-    return header;
-  }
-}
-
-export class FlvPacketHeader {
-  public packetHeader: Buffer;
-  public prevPacketSize: number;
-  public packetType: number;
-  public payloadSize: number;
-  public timestampLower: number;
-  public timestampUpper: number;
-  public streamId: number;
-
-  constructor(packetHeader: Buffer) {
-    this.packetHeader = packetHeader;
-    this.prevPacketSize = packetHeader.readUInt32BE(0);
-    this.packetType = packetHeader.readUInt8(4);
-    this.payloadSize = packetHeader.readUIntBE(5, 3);
-    this.timestampLower = packetHeader.readUIntBE(8, 3);
-    this.timestampUpper = packetHeader.readUInt8(11);
-    this.streamId = packetHeader.readUIntBE(12, 3);
-  }
-
-  public buildPacketHeader(): Buffer {
-    const packetHeader = Buffer.alloc(15);
-
-    packetHeader.writeUInt32BE(this.prevPacketSize, 0);
-    packetHeader.writeUInt8(this.packetType, 4);
-    packetHeader.writeUIntBE(this.payloadSize, 5, 3);
-    packetHeader.writeUIntBE(this.timestampLower, 8, 3);
-    packetHeader.writeUInt8(this.timestampUpper, 11);
-    packetHeader.writeUIntBE(this.streamId, 12, 3);
-
-    return packetHeader;
-  }
-}
+import { IMetadata, IAudioMetadata, IVideoMetadata, parseMetadata, parseAudio, parseVideo } from './flv-meta';
 
 export enum PacketTypeEnum {
   AUDIO = 'audio',
@@ -72,49 +7,157 @@ export enum PacketTypeEnum {
   UNKNOWN = 'unknown'
 }
 
-export class FlvPacket {
-  public header: FlvPacketHeader;
-  public payload: Buffer;
-  public fullPacketSize: number;
+export class FlvHeader {
+  public readonly payload: Buffer;
 
-  public metaData: IMetaData;
-  public audioMetaData: IAudioMetaData;
-  public videoMetaData: IVideoMetaData;
+  public signature: string;
+  public version: number;
+  public flags: number;
+  public headerSize: number;
 
-  public packetType: PacketTypeEnum;
-
-  constructor(packetHeader: FlvPacketHeader, payload: Buffer) {
-    this.header = packetHeader;
+  constructor(payload: Buffer) {
     this.payload = payload;
-    this.fullPacketSize = 15 + packetHeader.payloadSize;
 
-    this.packetType = this.getType(payload);
+    const signature = payload.toString('utf8', 0, 3);
+    const version = payload.readUInt8(3);
+    const flags = payload.readUInt8(4);
+    const headerSize = payload.readUInt32BE(5);
+
+    if (signature !== 'FLV') {
+      throw new Error('Not FLV.');
+    }
+
+    this.signature = signature;
+    this.version = version;
+    this.flags = flags;
+    this.headerSize = headerSize;
   }
 
-  public buildPacket(): Buffer {
-    return Buffer.concat([this.header.buildPacketHeader(), this.payload]);
+  public buildHeader(): Buffer {
+    const payload = Buffer.alloc(this.headerSize);
+
+    payload.write(this.signature);
+    payload.writeUInt8(this.version, 3);
+    payload.writeUInt8(this.flags, 4);
+    payload.writeUInt32BE(this.headerSize, 5);
+
+    return payload;
+  }
+}
+
+export class FlvPacketHeader {
+  public readonly payload: Buffer;
+
+  public prevPacketSize: number;
+  public packetType: number;
+  public payloadSize: number;
+  public timestampLower: number;
+  public timestampUpper: number;
+  public streamId: number;
+
+  constructor(payload: Buffer) {
+    this.payload = payload;
+
+    this.prevPacketSize = payload.readUInt32BE(0);
+    this.packetType = payload.readUInt8(4);
+    this.payloadSize = payload.readUIntBE(5, 3);
+    this.timestampLower = payload.readUIntBE(8, 3);
+    this.timestampUpper = payload.readUInt8(11);
+    this.streamId = payload.readUIntBE(12, 3);
   }
 
-  private getType(payload: Buffer): PacketTypeEnum {
-    switch (this.header.packetType) {
+  get packetTypeEnum(): PacketTypeEnum {
+    switch (this.packetType) {
       case 8: {
-        this.audioMetaData = parseAudio(payload);
-
         return PacketTypeEnum.AUDIO;
       }
       case 9: {
-        this.videoMetaData = parseVideo(payload);
-
         return PacketTypeEnum.VIDEO;
       }
       case 18: {
-        this.metaData = parseMetaData(payload);
-
         return PacketTypeEnum.METADATA;
       }
       default: {
         return PacketTypeEnum.UNKNOWN;
       }
     }
+  }
+
+  public buildPacketHeader(): Buffer {
+    const payload = Buffer.alloc(15);
+
+    payload.writeUInt32BE(this.prevPacketSize, 0);
+    payload.writeUInt8(this.packetType, 4);
+    payload.writeUIntBE(this.payloadSize, 5, 3);
+    payload.writeUIntBE(this.timestampLower, 8, 3);
+    payload.writeUInt8(this.timestampUpper, 11);
+    payload.writeUIntBE(this.streamId, 12, 3);
+
+    return payload;
+  }
+}
+
+export class FlvPacket {
+  public flvPacketHeader: FlvPacketHeader;
+  public readonly payload: Buffer;
+
+  constructor(flvPacketHeader: FlvPacketHeader, packetBody: Buffer) {
+    this.flvPacketHeader = flvPacketHeader;
+    this.payload = packetBody;
+  }
+
+  public parsePayload() {
+    switch (this.flvPacketHeader.packetTypeEnum) {
+      case PacketTypeEnum.AUDIO: {
+        return new FlvPacketAudio(this);
+      }
+      case PacketTypeEnum.VIDEO: {
+        return new FlvPacketVideo(this);
+      }
+      case PacketTypeEnum.METADATA: {
+        return new FlvPacketMetadata(this);
+      }
+      default: {
+        return this;
+      }
+    }
+  }
+
+  get packetSize(): number {
+    return this.flvPacketHeader.payload.length + this.payload.length;
+  }
+
+  public buildPacket(): Buffer {
+    return Buffer.concat([this.flvPacketHeader.buildPacketHeader(), this.payload]);
+  }
+}
+
+export class FlvPacketAudio extends FlvPacket {
+  public readonly audioData: IAudioMetadata;
+
+  constructor({ flvPacketHeader, payload }: FlvPacket) {
+    super(flvPacketHeader, payload);
+
+    this.audioData = parseAudio(payload);
+  }
+}
+
+export class FlvPacketVideo extends FlvPacket {
+  public readonly videoData: IVideoMetadata;
+
+  constructor({ flvPacketHeader, payload }: FlvPacket) {
+    super(flvPacketHeader, payload);
+
+    this.videoData = parseVideo(payload);
+  }
+}
+
+export class FlvPacketMetadata extends FlvPacket {
+  public readonly metadata: IMetadata;
+
+  constructor({ flvPacketHeader, payload }: FlvPacket) {
+    super(flvPacketHeader, payload);
+
+    this.metadata = parseMetadata(payload);
   }
 }

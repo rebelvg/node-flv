@@ -1,4 +1,12 @@
-import { FlvHeader, FlvPacketHeader, FlvPacket } from './flv';
+import {
+  FlvHeader,
+  FlvPacketHeader,
+  FlvPacket,
+  PacketTypeEnum,
+  FlvPacketAudio,
+  FlvPacketVideo,
+  FlvPacketMetadata
+} from './flv';
 import * as StreamParser from 'stream-parser';
 import { Writable } from 'stream';
 
@@ -9,21 +17,21 @@ export class FlvStreamParser extends Writable {
     this._bytes(9, this.onHeader);
   }
 
-  protected _bytes(bytesCount: number, cb: Function): void {
-    super['_bytes'](bytesCount, cb);
+  private _bytes(bytesLength: number, cb: Function): void {
+    super['_bytes'](bytesLength, cb);
   }
 
-  protected _skipBytes(bytesCount: number, cb: Function): void {
-    super['_skipBytes'](bytesCount, cb);
+  private _skipBytes(bytesLength: number, cb: Function): void {
+    super['_skipBytes'](bytesLength, cb);
   }
 
-  public onHeader(headerBuffer: Buffer, output: () => void) {
-    const header = new FlvHeader(headerBuffer);
+  public onHeader(headerPayload: Buffer, output: () => void) {
+    const flvHeader = new FlvHeader(headerPayload);
 
-    this.emit('flv-header', header);
+    this.emit('flv-header', flvHeader);
 
-    if (header.headerSize !== 9) {
-      this._skipBytes(header.headerSize - 9, () => {
+    if (flvHeader.headerSize !== 9) {
+      this._skipBytes(flvHeader.headerSize - 9, () => {
         this._bytes(15, this.onPacketHeader);
       });
     } else {
@@ -33,11 +41,15 @@ export class FlvStreamParser extends Writable {
     output();
   }
 
-  public onPacketHeader(packetHeaderBuffer: Buffer, output: () => void) {
-    const packetHeader = new FlvPacketHeader(packetHeaderBuffer);
+  public onPacketHeader(packetHeaderPayload: Buffer, output: () => void) {
+    const flvPacketHeader = new FlvPacketHeader(packetHeaderPayload);
 
-    this._bytes(packetHeader.payloadSize, (packetPayloadBuffer: Buffer, output: () => void) => {
-      this.emit('flv-packet', new FlvPacket(packetHeader, packetPayloadBuffer));
+    this._bytes(flvPacketHeader.payloadSize, (packetBodyPayload: Buffer, output: () => void) => {
+      const flvPacket = new FlvPacket(flvPacketHeader, packetBodyPayload);
+
+      this.emit('flv-packet', flvPacket);
+
+      this.emitTypedPacket(flvPacket);
 
       this._bytes(15, this.onPacketHeader);
 
@@ -45,6 +57,23 @@ export class FlvStreamParser extends Writable {
     });
 
     output();
+  }
+
+  private emitTypedPacket(flvPacket: FlvPacket) {
+    switch (flvPacket.flvPacketHeader.packetTypeEnum) {
+      case PacketTypeEnum.AUDIO: {
+        return this.emit('flv-packet-audio', new FlvPacketAudio(flvPacket));
+      }
+      case PacketTypeEnum.VIDEO: {
+        return this.emit('flv-packet-video', new FlvPacketVideo(flvPacket));
+      }
+      case PacketTypeEnum.METADATA: {
+        return this.emit('flv-packet-metadata', new FlvPacketMetadata(flvPacket));
+      }
+      default: {
+        return this.emit('flv-packet-unknown', flvPacket);
+      }
+    }
   }
 }
 

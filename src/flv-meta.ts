@@ -1,18 +1,18 @@
 import * as _ from 'lodash';
 import * as bitwise from 'bitwise';
 
-export interface IMetaData {
+export interface IMetadata {
   [paramName: string]: number | string | boolean;
 }
 
-export interface IAudioMetaData {
+export interface IAudioMetadata {
   soundFormat: string;
   soundRate: number;
   soundSize: number;
   channels: number;
 }
 
-export interface IVideoMetaData {
+export interface IVideoMetadata {
   frameType: string;
   codecId: string;
 }
@@ -46,7 +46,7 @@ const DATA_TYPES = {
   }
 };
 
-export function parseMetaData(payload: Buffer): IMetaData {
+export function parseMetadata(payload: Buffer): IMetadata {
   if (payload.readUInt8(0) !== 2) throw new Error('Unknown metadata format.');
 
   const stringLength = payload.readUIntBE(1, 2);
@@ -70,7 +70,7 @@ export function parseMetaData(payload: Buffer): IMetaData {
       break;
     }
     case 8: {
-      //number of items in metadata hash-map
+      // number of items in metadata hash-map
       const metadataLength = payload.readUInt32BE(parseOffset);
 
       parseOffset += 5;
@@ -79,7 +79,7 @@ export function parseMetaData(payload: Buffer): IMetaData {
     }
   }
 
-  const params: IMetaData = {};
+  const params: IMetadata = {};
 
   while (true) {
     if (parseOffset >= payload.length - 2) break;
@@ -133,7 +133,7 @@ export function parseMetaData(payload: Buffer): IMetaData {
   return params;
 }
 
-export function parseAudio(payload: Buffer): IAudioMetaData {
+export function parseAudio(payload: Buffer): IAudioMetadata {
   const soundFormatBit: number = bitwise.readUInt(payload, 0, 4);
   const soundRateBit: number = bitwise.readUInt(payload, 4, 2);
   const soundSizeBit: number = bitwise.readUInt(payload, 6, 1);
@@ -157,7 +157,11 @@ export function parseAudio(payload: Buffer): IAudioMetaData {
   };
 }
 
-export function parseVideo(payload: Buffer): IVideoMetaData {
+export function buildAudio(audioData: IAudioMetadata): Buffer {
+  return Buffer.from([]);
+}
+
+export function parseVideo(payload: Buffer): IVideoMetadata {
   let frameTypeBit: number = bitwise.readUInt(payload, 0, 4);
   let codecIdBit: number = bitwise.readUInt(payload, 4, 4);
 
