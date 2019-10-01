@@ -1,5 +1,7 @@
 # node-flv
 
+https://www.npmjs.com/package/node-flv
+
 ## Overview
 
 The purpose of this package is to give you an ability to parse flv stream on the fly and get highly structured and strongly typed flv package data.
