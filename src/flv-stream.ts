@@ -1,3 +1,7 @@
+import { Writable } from 'stream';
+
+import * as StreamParser from 'stream-parser';
+
 import {
   FlvHeader,
   FlvPacketHeader,
@@ -7,8 +11,6 @@ import {
   FlvPacketVideo,
   FlvPacketMetadata
 } from './flv';
-import * as StreamParser from 'stream-parser';
-import { Writable } from 'stream';
 
 export class FlvStreamParser extends Writable {
   constructor() {
