@@ -1,4 +1,4 @@
-import { IMetadata, IAudioMetadata, IVideoMetadata, parseMetadata, parseAudio, parseVideo } from './flv-meta';
+import { IAudioData, IVideoData, IMetadataData, parseAudio, parseVideo, parseMetadata } from './flv-data';
 
 export enum PacketTypeEnum {
   AUDIO = 'audio',
@@ -133,31 +133,31 @@ export class FlvPacket {
 }
 
 export class FlvPacketAudio extends FlvPacket {
-  public readonly audioData: IAudioMetadata;
+  public readonly data: IAudioData;
 
   constructor({ flvPacketHeader, payload }: FlvPacket) {
     super(flvPacketHeader, payload);
 
-    this.audioData = parseAudio(payload);
+    this.data = parseAudio(payload);
   }
 }
 
 export class FlvPacketVideo extends FlvPacket {
-  public readonly videoData: IVideoMetadata;
+  public readonly data: IVideoData;
 
   constructor({ flvPacketHeader, payload }: FlvPacket) {
     super(flvPacketHeader, payload);
 
-    this.videoData = parseVideo(payload);
+    this.data = parseVideo(payload);
   }
 }
 
 export class FlvPacketMetadata extends FlvPacket {
-  public readonly metadata: IMetadata;
+  public readonly data: IMetadataData;
 
   constructor({ flvPacketHeader, payload }: FlvPacket) {
     super(flvPacketHeader, payload);
 
-    this.metadata = parseMetadata(payload);
+    this.data = parseMetadata(payload);
   }
 }

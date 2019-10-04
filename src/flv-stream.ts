@@ -1,5 +1,4 @@
 import { Writable } from 'stream';
-
 import * as StreamParser from 'stream-parser';
 
 import {
