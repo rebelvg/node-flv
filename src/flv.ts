@@ -10,10 +10,10 @@ export enum PacketTypeEnum {
 export class FlvHeader {
   public readonly payload: Buffer;
 
-  public signature: string;
-  public version: number;
-  public flags: number;
-  public headerSize: number;
+  public readonly signature: string;
+  public readonly version: number;
+  public readonly flags: number;
+  public readonly headerSize: number;
 
   constructor(payload: Buffer) {
     this.payload = payload;

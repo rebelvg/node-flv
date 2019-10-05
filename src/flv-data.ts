@@ -57,10 +57,10 @@ export function parseAudio(payload: Buffer): IAudioData {
   const soundSize = _.get(DATA_TYPES, ['audio', 'soundSize', soundSizeBit]);
   const channels = _.get(DATA_TYPES, ['audio', 'soundType', soundTypeBit]);
 
-  if (!soundFormat) throw new Error('Unknown sound format. ' + soundFormatBit);
-  if (!soundRate) throw new Error('Unknown sound rate. ' + soundRateBit);
-  if (!soundSize) throw new Error('Unknown sound size. ' + soundSizeBit);
-  if (!channels) throw new Error('Unknown sound type. ' + soundTypeBit);
+  if (!soundFormat) throw new Error(`Unknown sound format ${soundFormatBit}`);
+  if (!soundRate) throw new Error(`Unknown sound rate ${soundRateBit}`);
+  if (!soundSize) throw new Error(`Unknown sound size ${soundSizeBit}`);
+  if (!channels) throw new Error(`Unknown sound type ${soundTypeBit}`);
 
   return {
     soundFormat,
@@ -71,14 +71,14 @@ export function parseAudio(payload: Buffer): IAudioData {
 }
 
 export function parseVideo(payload: Buffer): IVideoData {
-  let frameTypeBit: number = bitwise.readUInt(payload, 0, 4);
-  let codecIdBit: number = bitwise.readUInt(payload, 4, 4);
+  const frameTypeBit: number = bitwise.readUInt(payload, 0, 4);
+  const codecIdBit: number = bitwise.readUInt(payload, 4, 4);
 
-  let frameType = _.get(DATA_TYPES, ['video', 'frameType', frameTypeBit]);
-  let codecId = _.get(DATA_TYPES, ['video', 'codecId', codecIdBit]);
+  const frameType = _.get(DATA_TYPES, ['video', 'frameType', frameTypeBit]);
+  const codecId = _.get(DATA_TYPES, ['video', 'codecId', codecIdBit]);
 
-  if (!frameType) throw new Error('Unknown frame type. ' + frameTypeBit);
-  if (!codecId) throw new Error('Unknown codec id. ' + codecIdBit);
+  if (!frameType) throw new Error(`Unknown frame type ${frameTypeBit}`);
+  if (!codecId) throw new Error(`Unknown codec id ${codecIdBit}`);
 
   return {
     frameType,
@@ -87,7 +87,7 @@ export function parseVideo(payload: Buffer): IVideoData {
 }
 
 export function parseMetadata(payload: Buffer): IMetadataData {
-  if (payload.readUInt8(0) !== 2) throw new Error('Unknown metadata format.');
+  if (payload.readUInt8(0) !== 2) throw new Error(`Unknown metadata format`);
 
   const stringLength = payload.readUIntBE(1, 2);
 
@@ -99,7 +99,7 @@ export function parseMetadata(payload: Buffer): IMetadataData {
 
   const metadataObjType = payload.readUInt8(parseOffset);
 
-  if (![3, 8].includes(metadataObjType)) throw new Error(`Unknown metadata type. ${metadataObjType}`);
+  if (![3, 8].includes(metadataObjType)) throw new Error(`Unknown metadata type ${metadataObjType}`);
 
   parseOffset++;
 
@@ -163,7 +163,7 @@ export function parseMetadata(payload: Buffer): IMetadataData {
         break;
       }
       default: {
-        throw new Error(`Unknown metadata value type. ${valueType}`);
+        throw new Error(`Unknown metadata value type ${valueType}`);
       }
     }
 
