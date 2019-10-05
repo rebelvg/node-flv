@@ -13,7 +13,9 @@
   },
   "homepage": "https://github.com/rebelvg/node-flv#readme",
   "keywords": [
-    "flv"
+    "flv",
+    "stream",
+    "typescript"
   ],
   "scripts": {
     "lint": "prettier --list-different \"**/*.{ts,js,json,css,md}\"",
