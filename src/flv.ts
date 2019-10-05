@@ -8,20 +8,16 @@ export enum FlvPacketType {
 }
 
 export class FlvHeader {
-  public readonly payload: Buffer;
-
   public readonly signature: string;
   public readonly version: number;
   public readonly flags: number;
   public readonly headerSize: number;
 
-  constructor(payload: Buffer) {
-    this.payload = payload;
-
-    const signature = payload.toString('utf8', 0, 3);
-    const version = payload.readUInt8(3);
-    const flags = payload.readUInt8(4);
-    const headerSize = payload.readUInt32BE(5);
+  constructor(rawBuffer: Buffer) {
+    const signature = rawBuffer.toString('utf8', 0, 3);
+    const version = rawBuffer.readUInt8(3);
+    const flags = rawBuffer.readUInt8(4);
+    const headerSize = rawBuffer.readUInt32BE(5);
 
     if (signature !== 'FLV') {
       throw new Error('Not FLV.');
@@ -33,21 +29,19 @@ export class FlvHeader {
     this.headerSize = headerSize;
   }
 
-  public buildHeader(): Buffer {
-    const payload = Buffer.alloc(this.headerSize);
+  public build(): Buffer {
+    const rawBuffer = Buffer.alloc(this.headerSize);
 
-    payload.write(this.signature);
-    payload.writeUInt8(this.version, 3);
-    payload.writeUInt8(this.flags, 4);
-    payload.writeUInt32BE(this.headerSize, 5);
+    rawBuffer.write(this.signature);
+    rawBuffer.writeUInt8(this.version, 3);
+    rawBuffer.writeUInt8(this.flags, 4);
+    rawBuffer.writeUInt32BE(this.headerSize, 5);
 
-    return payload;
+    return rawBuffer;
   }
 }
 
 export class FlvPacketHeader {
-  public readonly payload: Buffer;
-
   public prevPacketSize: number;
   public packetType: number;
   public payloadSize: number;
@@ -55,18 +49,20 @@ export class FlvPacketHeader {
   public timestampUpper: number;
   public streamId: number;
 
-  constructor(payload: Buffer) {
-    this.payload = payload;
+  private _size: number;
 
-    this.prevPacketSize = payload.readUInt32BE(0);
-    this.packetType = payload.readUInt8(4);
-    this.payloadSize = payload.readUIntBE(5, 3);
-    this.timestampLower = payload.readUIntBE(8, 3);
-    this.timestampUpper = payload.readUInt8(11);
-    this.streamId = payload.readUIntBE(12, 3);
+  constructor(rawBuffer: Buffer) {
+    this.prevPacketSize = rawBuffer.readUInt32BE(0);
+    this.packetType = rawBuffer.readUInt8(4);
+    this.payloadSize = rawBuffer.readUIntBE(5, 3);
+    this.timestampLower = rawBuffer.readUIntBE(8, 3);
+    this.timestampUpper = rawBuffer.readUInt8(11);
+    this.streamId = rawBuffer.readUIntBE(12, 3);
+
+    this._size = rawBuffer.length;
   }
 
-  get packetTypeEnum(): FlvPacketType {
+  get type(): FlvPacketType {
     switch (this.packetType) {
       case 8: {
         return FlvPacketType.AUDIO;
@@ -83,31 +79,35 @@ export class FlvPacketHeader {
     }
   }
 
-  public buildPacketHeader(): Buffer {
-    const payload = Buffer.alloc(15);
+  get size() {
+    return this._size;
+  }
 
-    payload.writeUInt32BE(this.prevPacketSize, 0);
-    payload.writeUInt8(this.packetType, 4);
-    payload.writeUIntBE(this.payloadSize, 5, 3);
-    payload.writeUIntBE(this.timestampLower, 8, 3);
-    payload.writeUInt8(this.timestampUpper, 11);
-    payload.writeUIntBE(this.streamId, 12, 3);
+  public build(): Buffer {
+    const rawBuffer = Buffer.alloc(this._size);
 
-    return payload;
+    rawBuffer.writeUInt32BE(this.prevPacketSize, 0);
+    rawBuffer.writeUInt8(this.packetType, 4);
+    rawBuffer.writeUIntBE(this.payloadSize, 5, 3);
+    rawBuffer.writeUIntBE(this.timestampLower, 8, 3);
+    rawBuffer.writeUInt8(this.timestampUpper, 11);
+    rawBuffer.writeUIntBE(this.streamId, 12, 3);
+
+    return rawBuffer;
   }
 }
 
 export class FlvPacket {
-  public readonly flvPacketHeader: FlvPacketHeader;
+  public readonly header: FlvPacketHeader;
   public readonly payload: Buffer;
 
-  constructor(flvPacketHeader: FlvPacketHeader, packetBody: Buffer) {
-    this.flvPacketHeader = flvPacketHeader;
-    this.payload = packetBody;
+  constructor(flvPacketHeader: FlvPacketHeader, payload: Buffer) {
+    this.header = flvPacketHeader;
+    this.payload = payload;
   }
 
   public parsePayload() {
-    switch (this.flvPacketHeader.packetTypeEnum) {
+    switch (this.header.type) {
       case FlvPacketType.AUDIO: {
         return new FlvPacketAudio(this);
       }
@@ -123,20 +123,20 @@ export class FlvPacket {
     }
   }
 
-  get packetSize(): number {
-    return this.flvPacketHeader.payload.length + this.payload.length;
+  get size(): number {
+    return this.header.size + this.payload.length;
   }
 
-  public buildPacket(): Buffer {
-    return Buffer.concat([this.flvPacketHeader.buildPacketHeader(), this.payload]);
+  public build(): Buffer {
+    return Buffer.concat([this.header.build(), this.payload]);
   }
 }
 
 export class FlvPacketAudio extends FlvPacket {
   public readonly data: IAudioData;
 
-  constructor({ flvPacketHeader, payload }: FlvPacket) {
-    super(flvPacketHeader, payload);
+  constructor({ header, payload }: FlvPacket) {
+    super(header, payload);
 
     this.data = parseAudio(payload);
   }
@@ -145,8 +145,8 @@ export class FlvPacketAudio extends FlvPacket {
 export class FlvPacketVideo extends FlvPacket {
   public readonly data: IVideoData;
 
-  constructor({ flvPacketHeader, payload }: FlvPacket) {
-    super(flvPacketHeader, payload);
+  constructor({ header, payload }: FlvPacket) {
+    super(header, payload);
 
     this.data = parseVideo(payload);
   }
@@ -155,8 +155,8 @@ export class FlvPacketVideo extends FlvPacket {
 export class FlvPacketMetadata extends FlvPacket {
   public readonly data: IMetadataData;
 
-  constructor({ flvPacketHeader, payload }: FlvPacket) {
-    super(flvPacketHeader, payload);
+  constructor({ header, payload }: FlvPacket) {
+    super(header, payload);
 
     this.data = parseMetadata(payload);
   }

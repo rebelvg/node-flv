@@ -63,8 +63,8 @@ describe('FlvStreamParser integration test', () => {
     fileFooter.writeUInt32BE(11 + parsedFlvPackets[parsedFlvPackets.length - 1].payload.length, 0);
 
     const parsedFile = Buffer.from([
-      ...parsedFlvHeader.buildHeader(),
-      ...Buffer.concat(parsedFlvPackets.map(flvPacker => flvPacker.buildPacket())),
+      ...parsedFlvHeader.build(),
+      ...Buffer.concat(parsedFlvPackets.map(flvPacker => flvPacker.build())),
       ...fileFooter
     ]);
 

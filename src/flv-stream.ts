@@ -11,11 +11,14 @@ import {
   FlvPacketMetadata
 } from './flv';
 
+const FLV_HEADER_SIZE_BYTES_V1 = 9;
+const FLV_PACKET_HEADER_SIZE_BYTES_V1 = 15;
+
 export class FlvStreamParser extends Writable {
   constructor() {
     super();
 
-    this._bytes(9, this.onHeader);
+    this._bytes(FLV_HEADER_SIZE_BYTES_V1, this.onHeader);
   }
 
   private _bytes(bytesLength: number, cb: Function): void {
@@ -31,12 +34,12 @@ export class FlvStreamParser extends Writable {
 
     this.emit('flv-header', flvHeader);
 
-    if (flvHeader.headerSize !== 9) {
-      this._skipBytes(flvHeader.headerSize - 9, () => {
-        this._bytes(15, this.onPacketHeader);
+    if (flvHeader.headerSize !== FLV_HEADER_SIZE_BYTES_V1) {
+      this._skipBytes(flvHeader.headerSize - FLV_HEADER_SIZE_BYTES_V1, () => {
+        this._bytes(FLV_PACKET_HEADER_SIZE_BYTES_V1, this.onPacketHeader);
       });
     } else {
-      this._bytes(15, this.onPacketHeader);
+      this._bytes(FLV_PACKET_HEADER_SIZE_BYTES_V1, this.onPacketHeader);
     }
 
     output();
@@ -52,7 +55,7 @@ export class FlvStreamParser extends Writable {
 
       this.emitTypedPacket(flvPacket);
 
-      this._bytes(15, this.onPacketHeader);
+      this._bytes(FLV_PACKET_HEADER_SIZE_BYTES_V1, this.onPacketHeader);
 
       output();
     });
@@ -61,7 +64,7 @@ export class FlvStreamParser extends Writable {
   }
 
   private emitTypedPacket(flvPacket: FlvPacket) {
-    switch (flvPacket.flvPacketHeader.packetTypeEnum) {
+    switch (flvPacket.header.type) {
       case FlvPacketType.AUDIO: {
         return this.emit('flv-packet-audio', new FlvPacketAudio(flvPacket));
       }
