@@ -7,6 +7,10 @@ export enum FlvPacketType {
   UNKNOWN = 'unknown'
 }
 
+export const FLV_HEADER_SIZE_BYTES_V1 = 9;
+export const FLV_PACKET_PREVIOUS_PACKET_SIZE_BYTES_V1 = 4;
+export const FLV_PACKET_HEADER_SIZE_BYTES_V1 = 11;
+
 export class FlvHeader {
   public readonly signature: string;
   public readonly version: number;
@@ -80,7 +84,7 @@ export class FlvPacketHeader {
   }
 
   get size() {
-    return this._size;
+    return FLV_PACKET_HEADER_SIZE_BYTES_V1;
   }
 
   public build(): Buffer {

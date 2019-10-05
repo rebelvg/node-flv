@@ -103,7 +103,7 @@ Contains flv packet header and a payload.
   streamId: 0 }
 ```
 
-`prevPacketSize - payload length of a previous packet`
+`prevPacketSize - packet length of a previous packet`
 
 `packetType - audio, video, metadata, etc`
 

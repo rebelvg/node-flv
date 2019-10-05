@@ -23,6 +23,12 @@ describe('FlvStreamParser integration test', () => {
 
     flvStream.on('flv-packet', (flvPacket: FlvPacket) => {
       parsedFlvPackets.push(flvPacket);
+
+      const prevPacket = parsedFlvPackets[parsedFlvPackets.length - 2];
+
+      if (!prevPacket) {
+        return;
+      }
     });
 
     flvStream.on('flv-packet-audio', (flvPacket: FlvPacketAudio) => {
@@ -58,9 +64,9 @@ describe('FlvStreamParser integration test', () => {
     const initialFile = fs.readFileSync(filePath);
 
     // since we're trying to compare this to a file, we have to fake footer ourselves
-    // flv doesn't have footer per se, it's just 4 bytes that indicate payload length of the previous packet
+    // flv doesn't have footer per se, it's just 4 bytes that indicate packet length of the last packet
     const fileFooter = Buffer.alloc(4);
-    fileFooter.writeUInt32BE(11 + parsedFlvPackets[parsedFlvPackets.length - 1].payload.length, 0);
+    fileFooter.writeUInt32BE(parsedFlvPackets[parsedFlvPackets.length - 1].size, 0);
 
     const parsedFile = Buffer.from([
       ...parsedFlvHeader.build(),

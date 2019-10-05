@@ -8,17 +8,20 @@ import {
   FlvPacketType,
   FlvPacketAudio,
   FlvPacketVideo,
-  FlvPacketMetadata
+  FlvPacketMetadata,
+  FLV_HEADER_SIZE_BYTES_V1,
+  FLV_PACKET_PREVIOUS_PACKET_SIZE_BYTES_V1,
+  FLV_PACKET_HEADER_SIZE_BYTES_V1
 } from './flv';
 
-const FLV_HEADER_SIZE_BYTES_V1 = 9;
-const FLV_PACKET_HEADER_SIZE_BYTES_V1 = 15;
+const FLV_READ_FOR_HEADER = FLV_HEADER_SIZE_BYTES_V1;
+const FLV_READ_FOR_PACKET_HEADER = FLV_PACKET_PREVIOUS_PACKET_SIZE_BYTES_V1 + FLV_PACKET_HEADER_SIZE_BYTES_V1;
 
 export class FlvStreamParser extends Writable {
   constructor() {
     super();
 
-    this._bytes(FLV_HEADER_SIZE_BYTES_V1, this.onHeader);
+    this._bytes(FLV_READ_FOR_HEADER, this.onHeader);
   }
 
   private _bytes(bytesLength: number, cb: Function): void {
@@ -34,12 +37,12 @@ export class FlvStreamParser extends Writable {
 
     this.emit('flv-header', flvHeader);
 
-    if (flvHeader.headerSize !== FLV_HEADER_SIZE_BYTES_V1) {
-      this._skipBytes(flvHeader.headerSize - FLV_HEADER_SIZE_BYTES_V1, () => {
-        this._bytes(FLV_PACKET_HEADER_SIZE_BYTES_V1, this.onPacketHeader);
+    if (flvHeader.headerSize !== FLV_READ_FOR_HEADER) {
+      this._skipBytes(flvHeader.headerSize - FLV_READ_FOR_HEADER, () => {
+        this._bytes(FLV_READ_FOR_PACKET_HEADER, this.onPacketHeader);
       });
     } else {
-      this._bytes(FLV_PACKET_HEADER_SIZE_BYTES_V1, this.onPacketHeader);
+      this._bytes(FLV_READ_FOR_PACKET_HEADER, this.onPacketHeader);
     }
 
     output();
@@ -55,7 +58,7 @@ export class FlvStreamParser extends Writable {
 
       this.emitTypedPacket(flvPacket);
 
-      this._bytes(FLV_PACKET_HEADER_SIZE_BYTES_V1, this.onPacketHeader);
+      this._bytes(FLV_READ_FOR_PACKET_HEADER, this.onPacketHeader);
 
       output();
     });
