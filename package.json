@@ -19,7 +19,8 @@
     "lint": "prettier --list-different \"**/*.{ts,js,json,css,md}\"",
     "lint:fix": "prettier --write \"**/*.{ts,js,json,css,md}\"",
     "build": "tsc",
-    "release": "yarn build && yarn publish"
+    "release": "yarn build && yarn publish",
+    "test": "mocha"
   },
   "dependencies": {
     "bitwise": "^0.2.0",
@@ -27,8 +28,12 @@
     "stream-parser": "^0.3.1"
   },
   "devDependencies": {
+    "@types/chai": "^4.2.3",
     "@types/lodash": "^4.14.138",
+    "@types/mocha": "^5.2.7",
     "@types/node": "^12.7.5",
+    "chai": "^4.2.0",
+    "mocha": "^6.2.1",
     "prettier": "^1.18.2",
     "ts-node": "^8.4.1",
     "tsc": "^1.20150623.0",

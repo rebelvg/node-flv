@@ -11,6 +11,7 @@ Still heavy WIP.
 
 ```ts
 const fileReadStream = fs.createReadStream('file.flv');
+
 const flvStream = new FlvStreamParser();
 
 flvStream.on('flv-header', (flvHeader: FlvHeader) => {
