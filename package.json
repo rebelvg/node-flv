@@ -19,8 +19,8 @@
     "lint": "prettier --list-different \"**/*.{ts,js,json,css,md}\"",
     "lint:fix": "prettier --write \"**/*.{ts,js,json,css,md}\"",
     "build": "tsc",
-    "release": "yarn build && yarn publish",
-    "test": "mocha"
+    "test": "mocha",
+    "release": "yarn test && yarn build && yarn publish"
   },
   "dependencies": {
     "bitwise": "^0.2.0",

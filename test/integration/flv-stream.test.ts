@@ -49,7 +49,7 @@ describe('FlvStreamParser integration test', () => {
     });
   });
 
-  it('should return same number of packets on both apis', () => {
+  it('should return the same number of packets on both apis', () => {
     assert.strictEqual(typedPacketsCount, parsedFlvPackets.length);
   });
 
