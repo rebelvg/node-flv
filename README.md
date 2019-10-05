@@ -17,7 +17,7 @@ flvStream.on('flv-header', (flvHeader: FlvHeader) => {
   // this will most certainly fire first
   // it's a header of the flv stream
 
-  flvHeader.buildHeader();
+  flvHeader.build();
 });
 
 flvStream.on('flv-packet', (flvPacket: FlvPacket) => {
@@ -25,7 +25,7 @@ flvStream.on('flv-packet', (flvPacket: FlvPacket) => {
   // packets can be of three types: audio, video, metadata
   // any property of the packet that is not read only can be changed and the will be reflected in the result of the build packet function
 
-  flvPacket.buildPacket();
+  flvPacket.build();
 });
 
 // separate events for each packet type for your convenience
@@ -121,7 +121,7 @@ Contains flv packet header and a payload.
 
 ## Usage Examples
 
-https://github.com/rebelvg/flv-parser-ffmpeg-streamer
+- https://github.com/rebelvg/flv-parser-ffmpeg-streamer
 
 This example shows how you can mix a few flv streams together.
 
