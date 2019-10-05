@@ -1,6 +1,6 @@
 import { IAudioData, IVideoData, IMetadataData, parseAudio, parseVideo, parseMetadata } from './flv-data';
 
-export enum PacketTypeEnum {
+export enum FlvPacketType {
   AUDIO = 'audio',
   VIDEO = 'video',
   METADATA = 'metadata',
@@ -66,19 +66,19 @@ export class FlvPacketHeader {
     this.streamId = payload.readUIntBE(12, 3);
   }
 
-  get packetTypeEnum(): PacketTypeEnum {
+  get packetTypeEnum(): FlvPacketType {
     switch (this.packetType) {
       case 8: {
-        return PacketTypeEnum.AUDIO;
+        return FlvPacketType.AUDIO;
       }
       case 9: {
-        return PacketTypeEnum.VIDEO;
+        return FlvPacketType.VIDEO;
       }
       case 18: {
-        return PacketTypeEnum.METADATA;
+        return FlvPacketType.METADATA;
       }
       default: {
-        return PacketTypeEnum.UNKNOWN;
+        return FlvPacketType.UNKNOWN;
       }
     }
   }
@@ -108,13 +108,13 @@ export class FlvPacket {
 
   public parsePayload() {
     switch (this.flvPacketHeader.packetTypeEnum) {
-      case PacketTypeEnum.AUDIO: {
+      case FlvPacketType.AUDIO: {
         return new FlvPacketAudio(this);
       }
-      case PacketTypeEnum.VIDEO: {
+      case FlvPacketType.VIDEO: {
         return new FlvPacketVideo(this);
       }
-      case PacketTypeEnum.METADATA: {
+      case FlvPacketType.METADATA: {
         return new FlvPacketMetadata(this);
       }
       default: {

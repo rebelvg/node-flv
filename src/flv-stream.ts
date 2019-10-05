@@ -5,7 +5,7 @@ import {
   FlvHeader,
   FlvPacketHeader,
   FlvPacket,
-  PacketTypeEnum,
+  FlvPacketType,
   FlvPacketAudio,
   FlvPacketVideo,
   FlvPacketMetadata
@@ -62,13 +62,13 @@ export class FlvStreamParser extends Writable {
 
   private emitTypedPacket(flvPacket: FlvPacket) {
     switch (flvPacket.flvPacketHeader.packetTypeEnum) {
-      case PacketTypeEnum.AUDIO: {
+      case FlvPacketType.AUDIO: {
         return this.emit('flv-packet-audio', new FlvPacketAudio(flvPacket));
       }
-      case PacketTypeEnum.VIDEO: {
+      case FlvPacketType.VIDEO: {
         return this.emit('flv-packet-video', new FlvPacketVideo(flvPacket));
       }
-      case PacketTypeEnum.METADATA: {
+      case FlvPacketType.METADATA: {
         return this.emit('flv-packet-metadata', new FlvPacketMetadata(flvPacket));
       }
       default: {
