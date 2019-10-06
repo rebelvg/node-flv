@@ -106,9 +106,9 @@ Contains flv packet header and a payload.
 
 `payloadSize - payload length of the current packet`
 
-`timestampLower - timestamp relative to the first packet`
+`timestampLower - timestamp relative to the first packet in milliseconds`
 
-`timestampUpper - timestamp extension`
+`timestampUpper - timestamp extension in milliseconds`
 
 `streamId - always 0`
 
