@@ -15,7 +15,8 @@ import {
 } from './flv';
 
 const FLV_READ_FOR_HEADER = FLV_HEADER_SIZE_BYTES_V1;
-const FLV_READ_FOR_PACKET_HEADER = FLV_PACKET_PREVIOUS_PACKET_SIZE_BYTES_V1 + FLV_PACKET_HEADER_SIZE_BYTES_V1;
+const FLV_READ_FOR_PACKET_PREVIOUS_PACKET_SIZE = FLV_PACKET_PREVIOUS_PACKET_SIZE_BYTES_V1;
+const FLV_READ_FOR_PACKET_HEADER = FLV_PACKET_HEADER_SIZE_BYTES_V1;
 
 export class FlvStreamParser extends Writable {
   constructor() {
@@ -32,33 +33,29 @@ export class FlvStreamParser extends Writable {
     super['_skipBytes'](bytesLength, cb);
   }
 
-  public onHeader(headerPayload: Buffer, output: () => void) {
-    const flvHeader = new FlvHeader(headerPayload);
+  public onHeader(rawHeader: Buffer, output: () => void) {
+    const flvHeader = new FlvHeader(rawHeader);
 
     this.emit('flv-header', flvHeader);
 
-    if (flvHeader.headerSize !== FLV_READ_FOR_HEADER) {
-      this._skipBytes(flvHeader.headerSize - FLV_READ_FOR_HEADER, () => {
-        this._bytes(FLV_READ_FOR_PACKET_HEADER, this.onPacketHeader);
-      });
-    } else {
+    this._skipBytes(flvHeader.headerSize - FLV_READ_FOR_HEADER + FLV_READ_FOR_PACKET_PREVIOUS_PACKET_SIZE, () => {
       this._bytes(FLV_READ_FOR_PACKET_HEADER, this.onPacketHeader);
-    }
+    });
 
     output();
   }
 
-  public onPacketHeader(packetHeaderPayload: Buffer, output: () => void) {
-    const flvPacketHeader = new FlvPacketHeader(packetHeaderPayload);
+  public onPacketHeader(rawPacketHeader: Buffer, output: () => void) {
+    const flvPacketHeader = new FlvPacketHeader(rawPacketHeader);
 
-    this._bytes(flvPacketHeader.payloadSize, (packetBodyPayload: Buffer, output: () => void) => {
-      const flvPacket = new FlvPacket(flvPacketHeader, packetBodyPayload);
-
-      this.emit('flv-packet', flvPacket);
+    this._bytes(flvPacketHeader.payloadSize, (rawPacketBody: Buffer, output: () => void) => {
+      const flvPacket = new FlvPacket(flvPacketHeader, rawPacketBody);
 
       this.emitTypedPacket(flvPacket);
 
-      this._bytes(FLV_READ_FOR_PACKET_HEADER, this.onPacketHeader);
+      this._skipBytes(FLV_READ_FOR_PACKET_PREVIOUS_PACKET_SIZE, () => {
+        this._bytes(FLV_READ_FOR_PACKET_HEADER, this.onPacketHeader);
+      });
 
       output();
     });
@@ -67,6 +64,8 @@ export class FlvStreamParser extends Writable {
   }
 
   private emitTypedPacket(flvPacket: FlvPacket) {
+    this.emit('flv-packet', flvPacket);
+
     switch (flvPacket.header.type) {
       case FlvPacketType.AUDIO: {
         return this.emit('flv-packet-audio', new FlvPacketAudio(flvPacket));

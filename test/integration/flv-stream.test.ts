@@ -63,15 +63,9 @@ describe('FlvStreamParser integration test', () => {
   it('should produce exactly the same output file', () => {
     const initialFile = fs.readFileSync(filePath);
 
-    // since we're trying to compare this to a file, we have to fake footer ourselves
-    // flv doesn't have footer per se, it's just 4 bytes that indicate packet length of the last packet
-    const fileFooter = Buffer.alloc(4);
-    fileFooter.writeUInt32BE(parsedFlvPackets[parsedFlvPackets.length - 1].size, 0);
-
     const parsedFile = Buffer.from([
       ...parsedFlvHeader.build(),
-      ...Buffer.concat(parsedFlvPackets.map(flvPacker => flvPacker.build())),
-      ...fileFooter
+      ...Buffer.concat(parsedFlvPackets.map(flvPacker => flvPacker.build()))
     ]);
 
     assert.deepEqual(parsedFile, initialFile);

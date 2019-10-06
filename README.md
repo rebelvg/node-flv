@@ -68,7 +68,7 @@ Metadata Example
   filesize: 496576 }
 ```
 
-Usually followed by a first video and audio packet. These first video and audio packets are important. They should have `timestampLower` of 0, clients (video-players, codec decoders) use these packets in order to initialize the whole stream. So, for example, for video packets these must be key-frame packets, otherwise players wont be able to initialize the render properly. Rest of the sequence after these first packets can vary dramatically. What is expected, of course, is that these next packets have correct values for `prevPacketSize` and for both timestamp values `timestampLower` and `timestampUpper`.
+Usually followed by a first video and audio packet. These first video and audio packets are important. They should have `timestampLower` of 0, clients (video-players, codec decoders) use these packets in order to initialize the whole stream. So, for example, for video packets these must be key-frame packets, otherwise players wont be able to initialize the render properly. Rest of the sequence after these first packets can vary dramatically. What is expected, of course, is that these next packets have correct values for both timestamp values `timestampLower` and `timestampUpper`.
 
 ### Structure
 
@@ -95,15 +95,12 @@ Contains flv packet header and a payload.
 #### FlvPacketHeader
 
 ```ts
-{ prevPacketSize: 0,
-  packetType: 18,
+{ packetType: 18,
   payloadSize: 327,
   timestampLower: 0,
   timestampUpper: 0,
   streamId: 0 }
 ```
-
-`prevPacketSize - packet length of a previous packet`
 
 `packetType - audio, video, metadata, etc`
 
