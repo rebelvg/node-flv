@@ -23,7 +23,7 @@ flvStream.on('flv-header', (flvHeader: FlvHeader) => {
 flvStream.on('flv-packet', (flvPacket: FlvPacket) => {
   // this is an flv packet itself
   // packets can be of three types: audio, video, metadata
-  // any property of the packet that is not read only can be changed and the will be reflected in the result of the build packet function
+  // any property of the packet that is not read only can be changed and that will be reflected in the result of the build packet function
 
   flvPacket.build();
 });
@@ -104,7 +104,7 @@ Contains flv packet header and a payload.
 
 `packetType - audio, video, metadata, etc`
 
-`payloadSize - payload length of the current packet`
+`payloadSize - payload length of the current packet in bytes`
 
 `timestampLower - timestamp relative to the first packet in milliseconds`
 
