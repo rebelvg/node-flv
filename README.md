@@ -125,7 +125,3 @@ This example shows how you can mix a few flv streams together.
 - https://github.com/rebelvg/node-flv/tree/master/test
 
 Basic usage example of the library with some assertions.
-
-## Planned Features
-
-- Modify audio, video, metadata and get that reflected in the packet built

@@ -172,7 +172,3 @@ export function parseMetadata(payload: Buffer): IMetadataData {
 
   return params;
 }
-
-export function buildAudio(audioData: IAudioData): Buffer {
-  return Buffer.from([]);
-}
