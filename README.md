@@ -4,7 +4,7 @@ https://www.npmjs.com/package/node-flv
 
 ## Overview
 
-The purpose of this package is to give you an ability to parse FLV stream on the fly and get highly structured and strongly typed FLV container data that can be modified and built back into a buffer. Covered with tests. Still heavy WIP.
+The purpose of this package is to give you an ability to parse FLV stream on the fly and get highly structured and strongly typed FLV container data that can be modified and built back into a buffer. Covered with tests.
 
 ## API
 
@@ -118,10 +118,6 @@ Contains flv packet header and a payload.
 
 ## Usage Examples
 
+- https://github.com/rebelvg/flv-server
+
 - https://github.com/rebelvg/flv-parser-ffmpeg-streamer
-
-This example shows how you can mix a few flv streams together.
-
-- https://github.com/rebelvg/node-flv/tree/master/test
-
-Basic usage example of the library with some assertions.
