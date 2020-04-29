@@ -95,14 +95,14 @@ Contains flv packet header and a payload.
 #### FlvPacketHeader
 
 ```ts
-{ packetType: 18,
+{ packetTypeId: 18,
   payloadSize: 327,
   timestampLower: 0,
   timestampUpper: 0,
   streamId: 0 }
 ```
 
-`packetType - audio, video, metadata, etc`
+`packetTypeId - audio, video, metadata, etc`
 
 `payloadSize - payload length of the current packet in bytes`
 

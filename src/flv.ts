@@ -47,7 +47,7 @@ export class FlvHeader {
 }
 
 export class FlvPacketHeader {
-  public packetType: number;
+  public packetTypeId: number;
   public payloadSize: number;
   public timestampLower: number;
   public timestampUpper: number;
@@ -56,7 +56,7 @@ export class FlvPacketHeader {
   private _size: number;
 
   constructor(rawPacketHeader: Buffer) {
-    this.packetType = rawPacketHeader.readUInt8(0);
+    this.packetTypeId = rawPacketHeader.readUInt8(0);
     this.payloadSize = rawPacketHeader.readUIntBE(1, 3);
     this.timestampLower = rawPacketHeader.readUIntBE(4, 3);
     this.timestampUpper = rawPacketHeader.readUInt8(7);
@@ -66,7 +66,7 @@ export class FlvPacketHeader {
   }
 
   get type(): FlvPacketType {
-    switch (this.packetType) {
+    switch (this.packetTypeId) {
       case 8: {
         return FlvPacketType.AUDIO;
       }
@@ -89,7 +89,7 @@ export class FlvPacketHeader {
   public build(): Buffer {
     const rawBuffer = Buffer.alloc(this._size);
 
-    rawBuffer.writeUInt8(this.packetType, 0);
+    rawBuffer.writeUInt8(this.packetTypeId, 0);
     rawBuffer.writeUIntBE(this.payloadSize, 1, 3);
     rawBuffer.writeUIntBE(this.timestampLower, 4, 3);
     rawBuffer.writeUInt8(this.timestampUpper, 7);
