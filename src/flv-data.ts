@@ -1,45 +1,68 @@
 import * as _ from 'lodash';
 import * as bitwise from 'bitwise';
 
-const DATA_TYPES = {
-  audio: {
-    soundFormat: {
-      2: 'mp3',
-      10: 'aac'
-    },
-    soundRate: {
-      3: 44.1
-    },
-    soundSize: {
-      1: 16
-    },
-    soundType: {
-      0: 1,
-      1: 2
-    }
-  },
-  video: {
-    frameType: {
-      1: 'key-frame',
-      2: 'inter-frame'
-    },
-    codecId: {
-      4: 'on2 vp6',
-      7: 'avc'
-    }
-  }
-};
+export enum SoundFormatEnum {
+  'PCM PE' = 0,
+  'ADPCM' = 1,
+  'MP3' = 2,
+  'PCM LE' = 3,
+  'NELLYMOSER 16KHZ MONO' = 4,
+  'NELLYMOSER 8KHZ MONO' = 5,
+  'NELLYMOSER' = 6,
+  'G.711 A-LAW PCM' = 7,
+  'G.711 MU-LAW PCM' = 8,
+  'RESERVED' = 9,
+  'AAC' = 10,
+  'SPEEX' = 11,
+  'MP3 8KHZ' = 14,
+  'DEVICE-SPECIFIC' = 15
+}
+
+export enum SoundSampleRateEnum {
+  '5.5KHZ' = 0,
+  '11KHZ' = 1,
+  '22KHZ' = 2,
+  '44KHZ' = 3
+}
+
+export enum SoundBitDepthEnum {
+  '8BIT' = 0,
+  '16BIT' = 1
+}
+
+export enum SoundChannelsEnum {
+  'MONO' = 0,
+  'STEREO' = 1
+}
+
+export enum VideoFrameTypeEnum {
+  'KEYFRAME' = 1,
+  'INTER FRAME' = 2,
+  'DISPOSABLE FRAME' = 3,
+  'GENERATED KEYFRAME' = 4,
+  'VIDEO INFO COMMAND FRAME' = 5
+}
+
+export enum VideoCodecIdEnum {
+  'JPEG' = 1,
+  'SORENSON H.263' = 2,
+  'SCREEN VIDEO' = 3,
+  'ON2 VP6' = 4,
+  'ON2 VP6 W/ ALPHA' = 5,
+  'SCREEN VIDEO VERSION 2' = 6,
+  'AVC' = 7
+}
 
 export interface IAudioData {
-  readonly soundFormat: string;
-  readonly soundRate: number;
-  readonly soundSize: number;
-  readonly channels: number;
+  readonly format: SoundFormatEnum;
+  readonly sampleRate: SoundSampleRateEnum;
+  readonly bitDepth: SoundBitDepthEnum;
+  readonly channels: SoundChannelsEnum;
 }
 
 export interface IVideoData {
-  readonly frameType: string;
-  readonly codecId: string;
+  readonly frameType: VideoFrameTypeEnum;
+  readonly codecId: VideoCodecIdEnum;
 }
 
 export interface IMetadataData {
@@ -47,25 +70,24 @@ export interface IMetadataData {
 }
 
 export function parseAudio(payload: Buffer): IAudioData {
-  const soundFormatBit: number = bitwise.readUInt(payload, 0, 4);
-  const soundRateBit: number = bitwise.readUInt(payload, 4, 2);
-  const soundSizeBit: number = bitwise.readUInt(payload, 6, 1);
-  const soundTypeBit: number = bitwise.readUInt(payload, 7, 1);
+  const formatBit: number = bitwise.readUInt(payload, 0, 4);
+  const sampleRateBit: number = bitwise.readUInt(payload, 4, 2);
+  const bitDepthBit: number = bitwise.readUInt(payload, 6, 1);
+  const channelsBit: number = bitwise.readUInt(payload, 7, 1);
 
-  const soundFormat = _.get(DATA_TYPES, ['audio', 'soundFormat', soundFormatBit]);
-  const soundRate = _.get(DATA_TYPES, ['audio', 'soundRate', soundRateBit]);
-  const soundSize = _.get(DATA_TYPES, ['audio', 'soundSize', soundSizeBit]);
-  const channels = _.get(DATA_TYPES, ['audio', 'soundType', soundTypeBit]);
+  const format = _.find(SoundFormatEnum, value => value === formatBit);
+  const sampleRate = _.find(SoundSampleRateEnum, value => value === sampleRateBit);
+  const bitDepth = _.find(SoundBitDepthEnum, value => value === bitDepthBit);
+  const channels = _.find(SoundChannelsEnum, value => value === channelsBit);
 
-  if (!soundFormat) throw new Error(`Unknown sound format ${soundFormatBit}`);
-  if (!soundRate) throw new Error(`Unknown sound rate ${soundRateBit}`);
-  if (!soundSize) throw new Error(`Unknown sound size ${soundSizeBit}`);
-  if (!channels) throw new Error(`Unknown sound type ${soundTypeBit}`);
+  if (!_.every([format, sampleRate, bitDepth, channels])) {
+    throw new Error(`could_not_parse_audio`);
+  }
 
   return {
-    soundFormat,
-    soundRate,
-    soundSize,
+    format,
+    sampleRate,
+    bitDepth,
     channels
   };
 }
@@ -74,11 +96,12 @@ export function parseVideo(payload: Buffer): IVideoData {
   const frameTypeBit: number = bitwise.readUInt(payload, 0, 4);
   const codecIdBit: number = bitwise.readUInt(payload, 4, 4);
 
-  const frameType = _.get(DATA_TYPES, ['video', 'frameType', frameTypeBit]);
-  const codecId = _.get(DATA_TYPES, ['video', 'codecId', codecIdBit]);
+  const frameType = _.find(VideoFrameTypeEnum, value => value === frameTypeBit);
+  const codecId = _.find(VideoCodecIdEnum, value => value === codecIdBit);
 
-  if (!frameType) throw new Error(`Unknown frame type ${frameTypeBit}`);
-  if (!codecId) throw new Error(`Unknown codec id ${codecIdBit}`);
+  if (!_.every([frameType, codecId])) {
+    throw new Error(`could_not_parse_video`);
+  }
 
   return {
     frameType,
@@ -87,7 +110,9 @@ export function parseVideo(payload: Buffer): IVideoData {
 }
 
 export function parseMetadata(payload: Buffer): IMetadataData {
-  if (payload.readUInt8(0) !== 2) throw new Error(`Unknown metadata format`);
+  if (payload.readUInt8(0) !== 2) {
+    throw new Error(`unknown_metadata_format`);
+  }
 
   const stringLength = payload.readUIntBE(1, 2);
 
@@ -99,7 +124,9 @@ export function parseMetadata(payload: Buffer): IMetadataData {
 
   const metadataObjType = payload.readUInt8(parseOffset);
 
-  if (![3, 8].includes(metadataObjType)) throw new Error(`Unknown metadata type ${metadataObjType}`);
+  if (![3, 8].includes(metadataObjType)) {
+    throw new Error(`unknown_metadata_type ${metadataObjType}`);
+  }
 
   parseOffset++;
 
@@ -163,7 +190,7 @@ export function parseMetadata(payload: Buffer): IMetadataData {
         break;
       }
       default: {
-        throw new Error(`Unknown metadata value type ${valueType}`);
+        throw new Error(`unknown_metadata_value_type ${valueType}`);
       }
     }
 
