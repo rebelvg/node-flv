@@ -2,19 +2,19 @@ import * as _ from 'lodash';
 import * as bitwise from 'bitwise';
 
 export enum SoundFormatEnum {
-  'PCM PE' = 0,
+  'PCM_PE' = 0,
   'ADPCM' = 1,
   'MP3' = 2,
-  'PCM LE' = 3,
-  'NELLYMOSER 16KHZ MONO' = 4,
-  'NELLYMOSER 8KHZ MONO' = 5,
+  'PCM_LE' = 3,
+  'NELLYMOSER_16KHZ_MONO' = 4,
+  'NELLYMOSER_8KHZ_MONO' = 5,
   'NELLYMOSER' = 6,
-  'G.711 A-LAW PCM' = 7,
-  'G.711 MU-LAW PCM' = 8,
+  'G.711_A-LAW_PCM' = 7,
+  'G.711_MU-LAW_PCM' = 8,
   'RESERVED' = 9,
   'AAC' = 10,
   'SPEEX' = 11,
-  'MP3 8KHZ' = 14,
+  'MP3_8KHZ' = 14,
   'DEVICE-SPECIFIC' = 15
 }
 
@@ -37,19 +37,19 @@ export enum SoundChannelsEnum {
 
 export enum VideoFrameTypeEnum {
   'KEYFRAME' = 1,
-  'INTER FRAME' = 2,
-  'DISPOSABLE FRAME' = 3,
-  'GENERATED KEYFRAME' = 4,
-  'VIDEO INFO COMMAND FRAME' = 5
+  'INTER_FRAME' = 2,
+  'DISPOSABLE_FRAME' = 3,
+  'GENERATED_KEYFRAME' = 4,
+  'VIDEO_INFO' = 5
 }
 
 export enum VideoCodecIdEnum {
   'JPEG' = 1,
-  'SORENSON H.263' = 2,
-  'SCREEN VIDEO' = 3,
-  'ON2 VP6' = 4,
-  'ON2 VP6 W/ ALPHA' = 5,
-  'SCREEN VIDEO VERSION 2' = 6,
+  'SORENSON_H.263' = 2,
+  'SCREEN_VIDEO' = 3,
+  'ON2_VP6' = 4,
+  'ON2_VP6_WA' = 5,
+  'SCREEN_VIDEO_VERSION_2' = 6,
   'AVC' = 7
 }
 
