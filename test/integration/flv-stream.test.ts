@@ -23,12 +23,6 @@ describe('FlvStreamParser integration test', () => {
 
     flvStream.on('flv-packet', (flvPacket: FlvPacket) => {
       parsedFlvPackets.push(flvPacket);
-
-      const prevPacket = parsedFlvPackets[parsedFlvPackets.length - 2];
-
-      if (!prevPacket) {
-        return;
-      }
     });
 
     flvStream.on('flv-packet-audio', (flvPacket: FlvPacketAudio) => {
@@ -50,9 +44,7 @@ describe('FlvStreamParser integration test', () => {
     fileReadStream.pipe(flvStream);
 
     await new Promise(resolve => {
-      fileReadStream.on('close', () => {
-        resolve();
-      });
+      fileReadStream.on('close', resolve);
     });
   });
 

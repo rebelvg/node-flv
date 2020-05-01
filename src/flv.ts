@@ -102,13 +102,14 @@ export class FlvPacketHeader {
 export class FlvPacket {
   public readonly header: FlvPacketHeader;
   public readonly payload: Buffer;
+  public readonly data: any;
 
   constructor(flvPacketHeader: FlvPacketHeader, payload: Buffer) {
     this.header = flvPacketHeader;
     this.payload = payload;
   }
 
-  public parsePayload() {
+  public parsePayload(): FlvPacket {
     switch (this.header.type) {
       case FlvPacketType.AUDIO: {
         return new FlvPacketAudio(this);
