@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "bitwise": "^0.2.0",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "stream-parser": "^0.3.1"
   },
   "devDependencies": {
