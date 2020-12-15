@@ -5,6 +5,6 @@ export {
   FlvPacketAudio,
   FlvPacketVideo,
   FlvPacketMetadata,
-  FlvPacketType
+  FlvPacketType,
 } from './flv';
 export { FlvStreamParser } from './flv-stream';

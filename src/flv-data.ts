@@ -15,24 +15,24 @@ export enum SoundFormatEnum {
   'AAC' = 10,
   'SPEEX' = 11,
   'MP3_8KHZ' = 14,
-  'DEVICE-SPECIFIC' = 15
+  'DEVICE-SPECIFIC' = 15,
 }
 
 export enum SoundSampleRateEnum {
   '5.5KHZ' = 0,
   '11KHZ' = 1,
   '22KHZ' = 2,
-  '44KHZ' = 3
+  '44KHZ' = 3,
 }
 
 export enum SoundBitDepthEnum {
   '8BIT' = 0,
-  '16BIT' = 1
+  '16BIT' = 1,
 }
 
 export enum SoundChannelsEnum {
   'MONO' = 0,
-  'STEREO' = 1
+  'STEREO' = 1,
 }
 
 export enum VideoFrameTypeEnum {
@@ -40,7 +40,7 @@ export enum VideoFrameTypeEnum {
   'INTER_FRAME' = 2,
   'DISPOSABLE_FRAME' = 3,
   'GENERATED_KEYFRAME' = 4,
-  'VIDEO_INFO' = 5
+  'VIDEO_INFO' = 5,
 }
 
 export enum VideoCodecIdEnum {
@@ -50,7 +50,7 @@ export enum VideoCodecIdEnum {
   'ON2_VP6' = 4,
   'ON2_VP6_WA' = 5,
   'SCREEN_VIDEO_VERSION_2' = 6,
-  'AVC' = 7
+  'AVC' = 7,
 }
 
 export interface IAudioData {
@@ -76,7 +76,10 @@ export function parseAudio(payload: Buffer): IAudioData {
   const channelsBit: number = bitwise.readUInt(payload, 7, 1);
 
   const format = _.find(SoundFormatEnum, value => value === formatBit);
-  const sampleRate = _.find(SoundSampleRateEnum, value => value === sampleRateBit);
+  const sampleRate = _.find(
+    SoundSampleRateEnum,
+    value => value === sampleRateBit,
+  );
   const bitDepth = _.find(SoundBitDepthEnum, value => value === bitDepthBit);
   const channels = _.find(SoundChannelsEnum, value => value === channelsBit);
 
@@ -88,7 +91,7 @@ export function parseAudio(payload: Buffer): IAudioData {
     format,
     sampleRate,
     bitDepth,
-    channels
+    channels,
   };
 }
 
@@ -105,7 +108,7 @@ export function parseVideo(payload: Buffer): IVideoData {
 
   return {
     frameType,
-    codecId
+    codecId,
   };
 }
 
@@ -118,7 +121,11 @@ export function parseMetadata(payload: Buffer): IMetadataData {
 
   let parseOffset = 3;
 
-  const metadataName = payload.toString('utf8', parseOffset, parseOffset + stringLength);
+  const metadataName = payload.toString(
+    'utf8',
+    parseOffset,
+    parseOffset + stringLength,
+  );
 
   parseOffset += stringLength;
 
@@ -155,7 +162,11 @@ export function parseMetadata(payload: Buffer): IMetadataData {
 
     parseOffset++;
 
-    const paramName = payload.toString('utf8', parseOffset, parseOffset + paramNameLength);
+    const paramName = payload.toString(
+      'utf8',
+      parseOffset,
+      parseOffset + paramNameLength,
+    );
 
     parseOffset += paramNameLength;
 
@@ -183,7 +194,11 @@ export function parseMetadata(payload: Buffer): IMetadataData {
 
         parseOffset += 2;
 
-        params[paramName] = payload.toString('utf8', parseOffset, parseOffset + valueLength);
+        params[paramName] = payload.toString(
+          'utf8',
+          parseOffset,
+          parseOffset + valueLength,
+        );
 
         parseOffset += valueLength;
 

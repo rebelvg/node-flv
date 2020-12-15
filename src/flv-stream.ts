@@ -11,7 +11,7 @@ import {
   FlvPacketMetadata,
   FLV_HEADER_SIZE_BYTES_V1,
   FLV_PACKET_PREVIOUS_PACKET_SIZE_BYTES_V1,
-  FLV_PACKET_HEADER_SIZE_BYTES_V1
+  FLV_PACKET_HEADER_SIZE_BYTES_V1,
 } from './flv';
 
 const FLV_READ_FOR_HEADER = FLV_HEADER_SIZE_BYTES_V1;
@@ -38,9 +38,14 @@ export class FlvStreamParser extends Writable {
 
     this.emit('flv-header', flvHeader);
 
-    this._skipBytes(flvHeader.headerSize - FLV_READ_FOR_HEADER + FLV_READ_FOR_PACKET_PREVIOUS_PACKET_SIZE, () => {
-      this._bytes(FLV_READ_FOR_PACKET_HEADER, this.onPacketHeader);
-    });
+    this._skipBytes(
+      flvHeader.headerSize -
+        FLV_READ_FOR_HEADER +
+        FLV_READ_FOR_PACKET_PREVIOUS_PACKET_SIZE,
+      () => {
+        this._bytes(FLV_READ_FOR_PACKET_HEADER, this.onPacketHeader);
+      },
+    );
 
     output();
   }
@@ -48,17 +53,20 @@ export class FlvStreamParser extends Writable {
   public onPacketHeader(rawPacketHeader: Buffer, output: () => void) {
     const flvPacketHeader = new FlvPacketHeader(rawPacketHeader);
 
-    this._bytes(flvPacketHeader.payloadSize, (rawPacketBody: Buffer, output: () => void) => {
-      const flvPacket = new FlvPacket(flvPacketHeader, rawPacketBody);
+    this._bytes(
+      flvPacketHeader.payloadSize,
+      (rawPacketBody: Buffer, output: () => void) => {
+        const flvPacket = new FlvPacket(flvPacketHeader, rawPacketBody);
 
-      this.emitTypedPacket(flvPacket);
+        this.emitTypedPacket(flvPacket);
 
-      this._skipBytes(FLV_READ_FOR_PACKET_PREVIOUS_PACKET_SIZE, () => {
-        this._bytes(FLV_READ_FOR_PACKET_HEADER, this.onPacketHeader);
-      });
+        this._skipBytes(FLV_READ_FOR_PACKET_PREVIOUS_PACKET_SIZE, () => {
+          this._bytes(FLV_READ_FOR_PACKET_HEADER, this.onPacketHeader);
+        });
 
-      output();
-    });
+        output();
+      },
+    );
 
     output();
   }
@@ -74,7 +82,10 @@ export class FlvStreamParser extends Writable {
         return this.emit('flv-packet-video', new FlvPacketVideo(flvPacket));
       }
       case FlvPacketType.METADATA: {
-        return this.emit('flv-packet-metadata', new FlvPacketMetadata(flvPacket));
+        return this.emit(
+          'flv-packet-metadata',
+          new FlvPacketMetadata(flvPacket),
+        );
       }
       default: {
         return this.emit('flv-packet-unknown', flvPacket);

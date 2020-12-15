@@ -1,10 +1,17 @@
-import { IAudioData, IVideoData, IMetadataData, parseAudio, parseVideo, parseMetadata } from './flv-data';
+import {
+  IAudioData,
+  IVideoData,
+  IMetadataData,
+  parseAudio,
+  parseVideo,
+  parseMetadata,
+} from './flv-data';
 
 export enum FlvPacketType {
   AUDIO = 'audio',
   VIDEO = 'video',
   METADATA = 'metadata',
-  UNKNOWN = 'unknown'
+  UNKNOWN = 'unknown',
 }
 
 export const FLV_HEADER_SIZE_BYTES_V1 = 9;
@@ -34,7 +41,9 @@ export class FlvHeader {
   }
 
   public build(): Buffer {
-    const rawBuffer = Buffer.alloc(this.headerSize + FLV_PACKET_PREVIOUS_PACKET_SIZE_BYTES_V1);
+    const rawBuffer = Buffer.alloc(
+      this.headerSize + FLV_PACKET_PREVIOUS_PACKET_SIZE_BYTES_V1,
+    );
 
     rawBuffer.write(this.signature);
     rawBuffer.writeUInt8(this.version, 3);

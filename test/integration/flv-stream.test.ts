@@ -2,7 +2,14 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { assert } from 'chai';
 
-import { FlvStreamParser, FlvHeader, FlvPacket, FlvPacketAudio, FlvPacketVideo, FlvPacketMetadata } from '../../src';
+import {
+  FlvStreamParser,
+  FlvHeader,
+  FlvPacket,
+  FlvPacketAudio,
+  FlvPacketVideo,
+  FlvPacketMetadata,
+} from '../../src';
 
 describe('FlvStreamParser integration test', () => {
   const filePath = path.join(__dirname, '../test.flv');
@@ -57,7 +64,7 @@ describe('FlvStreamParser integration test', () => {
 
     const parsedFile = Buffer.from([
       ...parsedFlvHeader.build(),
-      ...Buffer.concat(parsedFlvPackets.map(flvPacker => flvPacker.build()))
+      ...Buffer.concat(parsedFlvPackets.map(flvPacker => flvPacker.build())),
     ]);
 
     assert.deepEqual(parsedFile, initialFile);
