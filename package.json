@@ -1,6 +1,6 @@
 {
   "name": "node-flv",
-  "version": "0.9.6",
+  "version": "0.9.7",
   "license": "MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -26,19 +26,19 @@
   },
   "dependencies": {
     "bitwise": "^0.2.0",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.20",
     "stream-parser": "^0.3.1"
   },
   "devDependencies": {
-    "@types/chai": "^4.2.3",
-    "@types/lodash": "^4.14.138",
-    "@types/mocha": "^5.2.7",
-    "@types/node": "^12.7.5",
+    "@types/chai": "^4.2.14",
+    "@types/lodash": "^4.14.165",
+    "@types/mocha": "^8.2.0",
+    "@types/node": "^14.14.13",
     "chai": "^4.2.0",
-    "mocha": "^6.2.1",
-    "prettier": "^1.18.2",
-    "ts-node": "^8.4.1",
+    "mocha": "^8.2.1",
+    "prettier": "^2.2.1",
+    "ts-node": "^9.1.1",
     "tsc": "^1.20150623.0",
-    "typescript": "^3.6.3"
+    "typescript": "^4.1.3"
   }
 }
