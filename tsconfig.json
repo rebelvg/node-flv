@@ -1,8 +1,10 @@
 {
   "compilerOptions": {
-    "target": "esnext",
+    "target": "es2019",
     "module": "commonjs",
     "outDir": "./dist",
+    "sourceMap": true,
+    "incremental": true,
     "declaration": true
   },
   "include": ["./src/**/*"]
