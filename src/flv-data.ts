@@ -75,13 +75,13 @@ export function parseAudio(payload: Buffer): IAudioData {
   const bitDepthBit: number = bitwise.readUInt(payload, 6, 1);
   const channelsBit: number = bitwise.readUInt(payload, 7, 1);
 
-  const format = _.find(SoundFormatEnum, value => value === formatBit);
+  const format = _.find(SoundFormatEnum, (value) => value === formatBit);
   const sampleRate = _.find(
     SoundSampleRateEnum,
-    value => value === sampleRateBit,
+    (value) => value === sampleRateBit,
   );
-  const bitDepth = _.find(SoundBitDepthEnum, value => value === bitDepthBit);
-  const channels = _.find(SoundChannelsEnum, value => value === channelsBit);
+  const bitDepth = _.find(SoundBitDepthEnum, (value) => value === bitDepthBit);
+  const channels = _.find(SoundChannelsEnum, (value) => value === channelsBit);
 
   if (!_.every([format, sampleRate, bitDepth, channels])) {
     throw new Error(`could_not_parse_audio`);
@@ -99,8 +99,11 @@ export function parseVideo(payload: Buffer): IVideoData {
   const frameTypeBit: number = bitwise.readUInt(payload, 0, 4);
   const codecIdBit: number = bitwise.readUInt(payload, 4, 4);
 
-  const frameType = _.find(VideoFrameTypeEnum, value => value === frameTypeBit);
-  const codecId = _.find(VideoCodecIdEnum, value => value === codecIdBit);
+  const frameType = _.find(
+    VideoFrameTypeEnum,
+    (value) => value === frameTypeBit,
+  );
+  const codecId = _.find(VideoCodecIdEnum, (value) => value === codecIdBit);
 
   if (!_.every([frameType, codecId])) {
     throw new Error(`could_not_parse_video`);

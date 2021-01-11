@@ -18,11 +18,11 @@
     "typescript"
   ],
   "scripts": {
-    "lint": "prettier --list-different \"**/*.{ts,js,json,css,md}\"",
-    "lint:fix": "prettier --write \"**/*.{ts,js,json,css,md}\"",
+    "lint": "prettier \"**/*\" --list-different --ignore-unknown",
+    "lint:fix": "prettier \"**/*\" --write --ignore-unknown",
     "build": "tsc",
     "test": "mocha",
-    "release": "yarn test && yarn build && yarn publish"
+    "release": "yarn lint && yarn test && yarn build && yarn publish"
   },
   "dependencies": {
     "bitwise": "^0.2.0",

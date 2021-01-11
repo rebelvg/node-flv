@@ -50,7 +50,7 @@ describe('FlvStreamParser integration test', () => {
 
     fileReadStream.pipe(flvStream);
 
-    await new Promise(resolve => {
+    await new Promise((resolve) => {
       fileReadStream.on('close', resolve);
     });
   });
@@ -64,7 +64,7 @@ describe('FlvStreamParser integration test', () => {
 
     const parsedFile = Buffer.from([
       ...parsedFlvHeader.build(),
-      ...Buffer.concat(parsedFlvPackets.map(flvPacker => flvPacker.build())),
+      ...Buffer.concat(parsedFlvPackets.map((flvPacker) => flvPacker.build())),
     ]);
 
     assert.deepEqual(parsedFile, initialFile);
