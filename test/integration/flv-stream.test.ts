@@ -48,10 +48,10 @@ describe('FlvStreamParser integration test', () => {
       typedPacketsCount++;
     });
 
-    fileReadStream.pipe(flvStream);
-
     await new Promise((resolve) => {
-      fileReadStream.on('close', resolve);
+      flvStream.on('close', resolve);
+
+      fileReadStream.pipe(flvStream);
     });
   });
 
