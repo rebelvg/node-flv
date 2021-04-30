@@ -31,7 +31,7 @@ export class FlvHeader {
     const headerSize = rawHeader.readUInt32BE(5);
 
     if (signature !== 'FLV') {
-      throw new Error('Not FLV.');
+      throw new Error('not_flv');
     }
 
     this.signature = signature;
@@ -135,7 +135,7 @@ export class FlvPacket {
     }
   }
 
-  get size(): number {
+  public get size(): number {
     return this.header.size + this.payload.length;
   }
 
@@ -144,6 +144,26 @@ export class FlvPacket {
     prevPacketSize.writeUInt32BE(this.size, 0);
 
     return Buffer.concat([this.header.build(), this.payload, prevPacketSize]);
+  }
+
+  public get isAudioPacket() {
+    return this.header.type === FlvPacketType.AUDIO;
+  }
+
+  public get isVideoPacket() {
+    return this.header.type === FlvPacketType.VIDEO;
+  }
+
+  public get isMetadataPacket() {
+    return this.header.type === FlvPacketType.METADATA;
+  }
+
+  public get isUnknownPacket() {
+    return this.header.type === FlvPacketType.UNKNOWN;
+  }
+
+  public get timestamp() {
+    return this.header.timestampLower;
   }
 }
 

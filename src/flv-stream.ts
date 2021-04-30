@@ -18,19 +18,18 @@ const FLV_READ_FOR_HEADER = FLV_HEADER_SIZE_BYTES_V1;
 const FLV_READ_FOR_PACKET_PREVIOUS_PACKET_SIZE = FLV_PACKET_PREVIOUS_PACKET_SIZE_BYTES_V1;
 const FLV_READ_FOR_PACKET_HEADER = FLV_PACKET_HEADER_SIZE_BYTES_V1;
 
+export declare interface FlvStreamParser {
+  _bytes(bytesLength: number, cb: (data: Buffer, cb: () => void) => void): void;
+  _skipBytes(bytesLength: number, cb: () => void): void;
+}
+
+export declare interface FlvStreamParserAsync extends FlvStreamParser {}
+
 export class FlvStreamParser extends Writable {
   constructor() {
     super();
 
     this._bytes(FLV_READ_FOR_HEADER, this.onHeader);
-  }
-
-  private _bytes(bytesLength: number, cb: Function): void {
-    super['_bytes'](bytesLength, cb);
-  }
-
-  private _skipBytes(bytesLength: number, cb: Function): void {
-    super['_skipBytes'](bytesLength, cb);
   }
 
   public onHeader(rawHeader: Buffer, output: () => void) {

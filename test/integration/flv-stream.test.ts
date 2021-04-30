@@ -12,61 +12,65 @@ import {
 } from '../../src';
 
 describe('FlvStreamParser integration test', () => {
-  const filePath = path.join(__dirname, '../test.flv');
+  describe('#FlvStreamParser', () => {
+    const filePath = path.join(__dirname, '../test.flv');
 
-  let parsedFlvHeader: FlvHeader;
-  const parsedFlvPackets: FlvPacket[] = [];
+    let parsedFlvHeader: FlvHeader;
+    const parsedFlvPackets: FlvPacket[] = [];
 
-  let typedPacketsCount = 0;
+    let typedPacketsCount = 0;
 
-  before(async () => {
-    const fileReadStream = fs.createReadStream(filePath);
+    before(async () => {
+      const fileReadStream = fs.createReadStream(filePath);
 
-    const flvStream = new FlvStreamParser();
+      const flvStream = new FlvStreamParser();
 
-    flvStream.on('flv-header', (flvHeader: FlvHeader) => {
-      parsedFlvHeader = flvHeader;
+      flvStream.on('flv-header', (flvHeader: FlvHeader) => {
+        parsedFlvHeader = flvHeader;
+      });
+
+      flvStream.on('flv-packet', (flvPacket: FlvPacket) => {
+        parsedFlvPackets.push(flvPacket);
+      });
+
+      flvStream.on('flv-packet-audio', (flvPacket: FlvPacketAudio) => {
+        typedPacketsCount++;
+      });
+
+      flvStream.on('flv-packet-video', (flvPacket: FlvPacketVideo) => {
+        typedPacketsCount++;
+      });
+
+      flvStream.on('flv-packet-metadata', (flvPacket: FlvPacketMetadata) => {
+        typedPacketsCount++;
+      });
+
+      flvStream.on('flv-packet-unknown', (flvPacket: FlvPacket) => {
+        typedPacketsCount++;
+      });
+
+      await new Promise((resolve) => {
+        flvStream.on('close', resolve);
+
+        fileReadStream.pipe(flvStream);
+      });
     });
 
-    flvStream.on('flv-packet', (flvPacket: FlvPacket) => {
-      parsedFlvPackets.push(flvPacket);
+    it('should return the same number of packets on both apis', () => {
+      assert.strictEqual(typedPacketsCount, parsedFlvPackets.length);
     });
 
-    flvStream.on('flv-packet-audio', (flvPacket: FlvPacketAudio) => {
-      typedPacketsCount++;
+    it('should produce exactly the same output file', () => {
+      const initialFile = fs.readFileSync(filePath);
+
+      const parsedFile = Buffer.from([
+        ...parsedFlvHeader.build(),
+        ...Buffer.concat(
+          parsedFlvPackets.map((flvPacker) => flvPacker.build()),
+        ),
+      ]);
+
+      assert.deepEqual(parsedFile, initialFile);
     });
-
-    flvStream.on('flv-packet-video', (flvPacket: FlvPacketVideo) => {
-      typedPacketsCount++;
-    });
-
-    flvStream.on('flv-packet-metadata', (flvPacket: FlvPacketMetadata) => {
-      typedPacketsCount++;
-    });
-
-    flvStream.on('flv-packet-unknown', (flvPacket: FlvPacket) => {
-      typedPacketsCount++;
-    });
-
-    await new Promise((resolve) => {
-      flvStream.on('close', resolve);
-
-      fileReadStream.pipe(flvStream);
-    });
-  });
-
-  it('should return the same number of packets on both apis', () => {
-    assert.strictEqual(typedPacketsCount, parsedFlvPackets.length);
-  });
-
-  it('should produce exactly the same output file', () => {
-    const initialFile = fs.readFileSync(filePath);
-
-    const parsedFile = Buffer.from([
-      ...parsedFlvHeader.build(),
-      ...Buffer.concat(parsedFlvPackets.map((flvPacker) => flvPacker.build())),
-    ]);
-
-    assert.deepEqual(parsedFile, initialFile);
   });
 });
