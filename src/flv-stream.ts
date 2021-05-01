@@ -23,8 +23,6 @@ export declare interface FlvStreamParser {
   _skipBytes(bytesLength: number, cb: () => void): void;
 }
 
-export declare interface FlvStreamParserAsync extends FlvStreamParser {}
-
 export class FlvStreamParser extends Writable {
   constructor() {
     super();
@@ -32,7 +30,7 @@ export class FlvStreamParser extends Writable {
     this._bytes(FLV_READ_FOR_HEADER, this.onHeader);
   }
 
-  public onHeader(rawHeader: Buffer, output: () => void) {
+  private onHeader(rawHeader: Buffer, cb: () => void) {
     const flvHeader = new FlvHeader(rawHeader);
 
     this.emit('flv-header', flvHeader);
@@ -46,15 +44,15 @@ export class FlvStreamParser extends Writable {
       },
     );
 
-    output();
+    cb();
   }
 
-  public onPacketHeader(rawPacketHeader: Buffer, output: () => void) {
+  private onPacketHeader(rawPacketHeader: Buffer, cb: () => void) {
     const flvPacketHeader = new FlvPacketHeader(rawPacketHeader);
 
     this._bytes(
       flvPacketHeader.payloadSize,
-      (rawPacketBody: Buffer, output: () => void) => {
+      (rawPacketBody: Buffer, cb: () => void) => {
         const flvPacket = new FlvPacket(flvPacketHeader, rawPacketBody);
 
         this.emitTypedPacket(flvPacket);
@@ -63,11 +61,11 @@ export class FlvStreamParser extends Writable {
           this._bytes(FLV_READ_FOR_PACKET_HEADER, this.onPacketHeader);
         });
 
-        output();
+        cb();
       },
     );
 
-    output();
+    cb();
   }
 
   private emitTypedPacket(flvPacket: FlvPacket) {
