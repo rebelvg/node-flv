@@ -135,6 +135,10 @@ export class FlvPacket {
     }
   }
 
+  public get type(): FlvPacketType {
+    return this.header.type;
+  }
+
   public get size(): number {
     return this.header.size + this.payload.length;
   }
