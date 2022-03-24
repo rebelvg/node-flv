@@ -4,7 +4,7 @@ https://www.npmjs.com/package/node-flv
 
 ## Overview
 
-The purpose of this package is to give you an ability to parse FLV stream on the fly and get highly structured and strongly typed FLV container data that can be modified and built back into a buffer. Covered with tests.
+The purpose of this package is to give you an ability to parse FLV stream in realtime and get highly structured and strongly typed FLV container data that can be modified and built back into a buffer. Covered with tests.
 
 ## API
 
